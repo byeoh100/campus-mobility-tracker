@@ -17,7 +17,7 @@ Ride dispatch for the campus golf cart program. Django + React, deployed as one 
   - Shares the driver's location while a ride is on the way.
 - **Riders**
   - Look up rides by phone number on the home page.
-  - Follow a ride on its own page (`/r/<token>`): status, drop-offs away, the driver's dot, a 👍, and optional map pins.
+  - Follow a ride on its own page (`/r/<token>`): status, the driver's dot, a 👍, and optional map pins.
 
 ## Roles
 

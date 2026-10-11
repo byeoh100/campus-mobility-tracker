@@ -4,8 +4,8 @@ Phases, by the clock and the ride's status:
 
     upcoming   more than 20 min before pickup: details, pin dragging
     live       from 20 min before pickup until the ride is over (a late
-               pickup stays live, up to RIDE_CUTOFF): status, drop-offs away,
-               driver's position, thumbs up
+               pickup stays live, up to RIDE_CUTOFF): status, driver's
+               position, thumbs up
     complete   the ride is over: "your ride is complete"
     expired    the ride is over and it's 20+ min past pickup: nothing but
                "this link has expired"
@@ -14,9 +14,8 @@ Phases, by the clock and the ride's status:
 from django.conf import settings
 from django.utils import timezone
 
-from .models import Ride
 from .serializers import pin
-from .status import COMPLETED, LINK_WINDOW, ON_THE_WAY, status_of, statuses_for
+from .status import COMPLETED, LINK_WINDOW, ON_THE_WAY, status_of
 from .tracking import location_payload
 
 UPCOMING, LIVE, COMPLETE, EXPIRED = "upcoming", "live", "complete", "expired"
@@ -31,24 +30,6 @@ def phase_of(ride, now, status=None):
     if now >= ride.pickup_time - LINK_WINDOW or status == ON_THE_WAY:
         return LIVE
     return UPCOMING
-
-
-def dropoffs_away(ride, now):
-    """How many of the driver's rides come before this one and aren't done:
-    the one they're on now (if it isn't this one) plus earlier ones not started."""
-    if not ride.driver_id:
-        return None
-    todays = list(
-        Ride.objects.filter(driver_id=ride.driver_id, pickup_time__date=timezone.localtime(ride.pickup_time).date())
-    )
-    statuses = statuses_for(todays, now)
-    return sum(
-        1
-        for r in todays
-        if r.id != ride.id
-        and statuses[r.id] != COMPLETED
-        and (statuses[r.id] == ON_THE_WAY or r.pickup_time < ride.pickup_time)
-    )
 
 
 def page_payload(ride, now=None):
@@ -74,7 +55,6 @@ def page_payload(ride, now=None):
         payload["live"] = {
             "status": status,
             "driver": {"name": driver.name.split()[0], "color": driver.color} if driver else None,
-            "dropoffs_away": dropoffs_away(ride, now),
             # Where the driver is, while they're driving anyone (this rider or
             # an earlier one), as a point on the map. Never raw GPS.
             "driver_location": location_payload(driver, now) if driver else None,

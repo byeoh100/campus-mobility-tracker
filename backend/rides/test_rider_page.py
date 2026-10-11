@@ -84,22 +84,11 @@ class RiderPageTests(TestCase):
         with at(10, 20):
             self.assertEqual(self.page()["phase"], "expired")
 
-    def test_dropoffs_away(self):
-        earlier1 = self.make(9, 40, rider="E1")
-        self.make(9, 50, rider="E2")
-        self.make(10, 30, rider="Later")  # after this ride: doesn't count
-        earlier1.started_at = local(D, 9, 30)
-        earlier1.save()
-        with at(9, 46):
-            live = self.page()["live"]
-        self.assertEqual(live["dropoffs_away"], 2)  # on E1 now, then E2, then us
-        self.assertEqual(live["status"], "not_confirmed")
-
     def test_unassigned_ride(self):
         ride = self.make(10, 0, driver=None)
         with at(9, 50):
             live = self.page(ride)["live"]
-        self.assertEqual((live["driver"], live["dropoffs_away"], live["driver_location"]), (None, None, None))
+        self.assertEqual((live["driver"], live["driver_location"]), (None, None))
 
     def test_driver_location_while_driving(self):
         with at(9, 49):
