@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import DriverLocation, Ride
+from .models import Ride
 
 
 @admin.register(Ride)
@@ -12,6 +12,5 @@ class RideAdmin(admin.ModelAdmin):
     readonly_fields = ["link_token", "created_at", "updated_at"]
 
 
-@admin.register(DriverLocation)
-class DriverLocationAdmin(admin.ModelAdmin):
-    list_display = ["driver", "lat", "lng", "accuracy_m", "updated_at"]
+# DriverLocation is deliberately not registered: exact GPS is never displayed
+# to anyone, developers included (see the privacy page).

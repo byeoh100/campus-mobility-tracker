@@ -26,6 +26,13 @@ export default function Privacy() {
           UCSB Mobility Tracker coordinates golf cart rides for UC Santa Barbara students who need transportation to class.
           This page explains what information the app uses, who can see it, and how long it's kept.
         </p>
+        <p>
+          It covers this app only. The UCSB Mobility Program's own privacy policy also applies:{" "}
+          <a href="https://mobilityprogram.sa.ucsb.edu/mtp-privacy-policy-2026" target="_blank" rel="noopener noreferrer">
+            Mobility Program Privacy Policy
+          </a>
+          .
+        </p>
 
         <h2>What we collect</h2>
         <ul>
@@ -53,7 +60,7 @@ export default function Privacy() {
           <li>
             <strong>Driver location.</strong> Only while a driver has a ride on the way, their phone shares its
             GPS position about every 10 seconds, so the rider can see them coming. Only the most recent position is
-            kept, and it's deleted within a day. Location is never collected from riders.
+            kept, and it's deleted once it's a day old. Location is never collected from riders.
           </li>
           <li>
             <strong>Cookies and browser storage.</strong> A sign-in cookie that keeps you signed in, a security cookie
@@ -104,10 +111,14 @@ export default function Privacy() {
         <h2>How long it's kept</h2>
         <ul>
           <li>
-            Rides move to an archive at 8:00 AM the morning after, and are permanently deleted {retention} days after
-            that.
+            Rides move to an archive at 8:00 AM the morning after, and are permanently deleted once they've been
+            archived for {retention} days.
           </li>
-          <li>Drivers' location is deleted within a day.</li>
+          <li>Drivers' location is deleted once it's a day old.</li>
+          <li>
+            This cleanup runs automatically whenever the app is in use, so over weekends and breaks, when nobody
+            opens it, deletion happens the next time someone does.
+          </li>
           <li>
             Your sign-in record (name and email) is kept so you can sign in again. Ask us if you'd like it removed.
           </li>
