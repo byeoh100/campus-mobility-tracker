@@ -27,7 +27,7 @@ export default function Privacy() {
         <p className="muted">Last updated {LAST_UPDATED}</p>
 
         <p>
-          Campus Mobility Tracker coordinates golf cart rides for UC Santa Barbara students who need transportation to class.
+          Campus Mobility Tracker coordinates rides for UCSB students using the UCSB Mobility Transport Program.
           This page explains what information the app uses, who can see it, and how long it's kept. It's a student
           project, not an official UCSB application.
         </p>
@@ -78,8 +78,7 @@ export default function Privacy() {
           </li>
           <li>
             <strong>Google sign-in.</strong> When staff or drivers sign in with Google, the app checks your email
-            address and keeps only that. Google also sends your name, but it isn't stored. The app can't access your
-            Gmail, Drive, contacts, calendar, or any other Google data, and it never sees your password.
+            address and keeps only that. Google also sends your name, but it isn't stored.
           </li>
           <li>
             <strong>Driver location.</strong> Only while a driver has a ride on the way, their phone shares its GPS
@@ -94,8 +93,7 @@ export default function Privacy() {
           <li>
             <strong>Server logs and rate limits.</strong> Like most websites, our hosting provider keeps standard
             server logs, such as IP addresses and the pages requested, for a limited time to run and secure the
-            service. To stop abuse of the phone number lookup and sign-in, the app also briefly keeps IP addresses
-            and scrambled (hashed) phone numbers, for up to an hour.
+            service. To stop abuse of the phone number lookup and sign-in, the app briefly keeps counters of recent attempts, labelled by IP address or by a coded form of the phone number looked up, for up to an hour.
           </li>
         </ul>
 
