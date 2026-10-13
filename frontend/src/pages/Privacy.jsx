@@ -5,6 +5,10 @@ import { formatPhone } from "../lib/phone.js";
 // Public privacy policy (/privacy), linked from Google's consent screen.
 // Written to match what the app actually does; if the app changes, update
 // this page too. Have the program (and UCSB, if required) review the wording.
+//
+// Testing phase: this describes the trimmed app (rides keep a ride ID, not a
+// name; no rider emails, notes or equipment; drivers keep a first name only).
+// When the trim is lifted, rewrite the sections below to match.
 const LAST_UPDATED = "October 12, 2026";
 
 export default function Privacy() {
@@ -36,52 +40,50 @@ export default function Privacy() {
         </p>
 
         <section className="notice testing-phase" aria-labelledby="testing-phase">
-          <h2 id="testing-phase">Testing phase</h2>
+          <h2 id="testing-phase">This app is in testing</h2>
           <p>
-            While the app is being tested, it's hosted on a service that isn't yet fully approved for student
-            information, so it keeps less than the rest of this page describes:
+            Everything on this page describes the app <strong>during its testing phase</strong>. While it's being
+            tested, it's hosted on a service that isn't yet fully approved for student information, so it
+            deliberately keeps as little as possible:
           </p>
           <ul>
-            <li>
-              <strong>Riders:</strong> no names, emails or notes are stored. Each ride is identified by a random
-              6-character ride ID instead, and the rider's phone number is the only contact detail kept.
-            </li>
-            <li>
-              <strong>Drivers:</strong> only a first name is stored, and no phone number.
-            </li>
-            <li>
-              <strong>Sign-in:</strong> only your email address is kept; the name Google shares is not.
-            </li>
+            <li>No rider names, email addresses, ride notes, or mobility equipment are stored.</li>
+            <li>Each ride is identified by a random 6-character ride ID, and the rider's phone number is the only contact detail kept.</li>
+            <li>Drivers are stored by first name only, with no phone number.</li>
           </ul>
-          <p>Where this page mentions names, emails or notes, they don't apply during the testing phase.</p>
+          <p>
+            If the app moves to the Mobility Program after testing, this policy will be updated before it collects
+            anything more.
+          </p>
         </section>
 
-        <h2>What we collect</h2>
+        <h2>What we collect (during testing)</h2>
         <ul>
           <li>
-            <strong>Google sign-in.</strong> When staff or drivers sign in with Google, the app receives only your
-            name and email address. It can't access your Gmail, Drive, contacts, calendar, or any other Google data,
-            and it never sees your password.
-          </li>
-          <li>
-            <strong>Ride information.</strong> Dispatch enters each rider's name, phone number, UCSB email (optional), pickup
-            time, and pickup and drop-off locations, either by hand or by importing the program's ride request form
-            (including any mobility equipment the rider listed). Eligibility is verified separately, outside this app.
-          </li>
-          <li>
-            <strong>Ride notes (optional).</strong> Anything the rider adds when requesting a ride, such as where to
-            meet or what help they need getting into the cart. Please include only what the driver needs to know.
+            <strong>Rides.</strong> For each ride: the rider's phone number, the pickup time, the pickup and drop-off
+            locations, and whether it repeats weekly. Dispatch enters rides by hand or imports them from the
+            program's ride request form; when importing, only those details are read, and the form's name, email,
+            mobility equipment, and notes answers are skipped. Eligibility is verified separately, outside this app.
           </li>
           <li>
             <strong>Map pins (optional).</strong> Riders may mark their pickup and drop-off spots on the campus map.
           </li>
           <li>
-            <strong>Ride progress.</strong> When a driver starts a ride (it's then "On the way"), when they mark it complete (if
-            they do), and whether the rider confirmed they'll be there.
+            <strong>Ride progress.</strong> When a driver starts a ride (it's then "On the way"), when they mark it
+            complete (if they do), and whether the rider confirmed they'll be there.
           </li>
           <li>
-            <strong>Driver location.</strong> Only while a driver has a ride on the way, their phone shares its
-            GPS position about every 10 seconds, so the rider can see them coming. Only the most recent position is
+            <strong>Staff.</strong> For drivers: a first name, UCSB email address, color, weekly shift schedule, and
+            how many rides they've given. For dispatchers: a UCSB email address and when they last signed in.
+          </li>
+          <li>
+            <strong>Google sign-in.</strong> When staff or drivers sign in with Google, the app checks your email
+            address and keeps only that. Google also sends your name, but it isn't stored. The app can't access your
+            Gmail, Drive, contacts, calendar, or any other Google data, and it never sees your password.
+          </li>
+          <li>
+            <strong>Driver location.</strong> Only while a driver has a ride on the way, their phone shares its GPS
+            position about every 10 seconds, so the rider can see them coming. Only the most recent position is
             kept, and it's deleted once it's a day old. Location is never collected from riders.
           </li>
           <li>
@@ -90,8 +92,10 @@ export default function Privacy() {
             advertising, analytics, or tracking cookies.
           </li>
           <li>
-            <strong>Server logs.</strong> Like most websites, our hosting provider keeps standard server logs, such as
-            IP addresses and the pages requested, for a limited time to run and secure the service.
+            <strong>Server logs and rate limits.</strong> Like most websites, our hosting provider keeps standard
+            server logs, such as IP addresses and the pages requested, for a limited time to run and secure the
+            service. To stop abuse of the phone number lookup and sign-in, the app also briefly keeps IP addresses
+            and scrambled (hashed) phone numbers, for up to an hour.
           </li>
         </ul>
 
@@ -102,20 +106,24 @@ export default function Privacy() {
             driver is on, with their position on the campus map.
           </li>
           <li>
-            <strong>Drivers</strong> can see every ride's time, rider name, locations, and map pins, so they can
-            coordinate. Only for their own rides can they see the rider's phone number, email, notes, ride link,
-            and progress.
+            <strong>Drivers</strong> can see every ride's time, ride ID, locations, and map pins, so they can
+            coordinate. Only for their own rides can they see the rider's phone number, ride link, and progress.
           </li>
           <li>
             <strong>Anyone with a ride's link</strong> can see that ride's time, locations, and map pins. From 20
-            minutes before pickup until the ride is over, the link also shows the ride's status, the driver's first
-            name, and the driver's position on the campus map. Links don't show the rider's name, phone number, or
-            email, and they stop working once the ride is over and it's 20 minutes past pickup (at most an hour after
-            pickup). Please don't share your link.
+            minutes before pickup (or earlier, if the driver sets off early) until the ride is over, the link also
+            shows the ride's status, the driver's first name, and the driver's position on the campus map, which
+            may include the end of the driver's previous ride. Links don't show the rider's phone number, and they
+            stop working once the ride is over and it's 20 minutes past pickup (at most an hour after pickup).
+            Please don't share your link.
           </li>
           <li>
             <strong>Phone number lookup.</strong> Entering a phone number on the home page shows the times and
             locations of that number's upcoming rides, with links to them. Lookups are rate-limited.
+          </li>
+          <li>
+            <strong>The app's developer</strong> can see the stored information when needed to maintain and fix the
+            app.
           </li>
         </ul>
         <p>
@@ -126,8 +134,8 @@ export default function Privacy() {
         <h2>What we don't do</h2>
         <p>
           We don't sell your information, use it for advertising, or share it with anyone outside the program, other
-          than the services that run the app: our hosting provider (which stores the app and its database) and Google
-          (for sign-in).
+          than the services that run the app: our hosting provider (which stores the app and its database, in the
+          United States) and Google (for sign-in).
         </p>
 
         <h2>How long it's kept</h2>
@@ -142,7 +150,8 @@ export default function Privacy() {
             opens it, deletion happens the next time someone does.
           </li>
           <li>
-            Your sign-in record (name and email) is kept so you can sign in again. Ask us if you'd like it removed.
+            Your sign-in record (your email address) is kept so you can sign in again. Ask us if you'd like it
+            removed.
           </li>
         </ul>
 
@@ -166,7 +175,10 @@ export default function Privacy() {
         </p>
 
         <h2>Changes</h2>
-        <p>If this policy changes, we'll update this page and the date at the top.</p>
+        <p>
+          If this policy changes, we'll update this page and the date at the top. In particular, when testing ends,
+          this page will be rewritten before the app starts keeping any information it doesn't keep now.
+        </p>
       </article>
     </div>
   );
