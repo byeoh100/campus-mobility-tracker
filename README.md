@@ -1,6 +1,9 @@
-# UCSB Mobility Tracker
+# Campus Mobility Tracker
 
-Ride dispatch for the campus golf cart program. Django + React, deployed as one app.
+Ride dispatch for the campus mobility program. Django + React, deployed as one app.
+
+> **Student project, not an official UCSB application.** Built and maintained by a student (me) for the
+> UCSB Mobility Program, and may move to the program's ownership once approved.
 
 ## What it does
 
@@ -28,8 +31,6 @@ Anyone with a UCSB email can sign in through Google. Their role comes from their
 - **Rider** (everyone else): ride lookup at `/`.
 
 Changes to the lists take effect immediately, with no need to sign out. Only emails in `ALLOWED_EMAIL_DOMAINS` can be added (default `ucsb.edu`, which also covers `umail.ucsb.edu`).
-
-**The first admin:** set `BOOTSTRAP_ADMIN_EMAIL` to your email. When you first sign in while the admin list is empty, you're added to it. After that, the setting does nothing.
 
 ## Layout
 
@@ -96,10 +97,6 @@ cd frontend
 npm install
 npm run dev
 ```
-
-Open http://localhost:5173 and use **Development sign-in** with your bootstrap email to become admin. To try other roles, add a driver on the Drivers page, then sign in as that email (driver) or any other email (rider). `DEV_LOGIN` lets anyone sign in as anyone, so it only works with `DJANGO_DEBUG` on.
-
-`.env` is git-ignored and only for your machine. In production, set the same variables on the host (Render's dashboard) instead.
 
 ## Backup sign-in
 
