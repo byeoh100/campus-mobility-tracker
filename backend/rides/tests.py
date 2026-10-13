@@ -86,7 +86,8 @@ class RideApiTests(TestCase):
         r = self.create()
         self.assertEqual(r.status_code, 201, r.json())
         body = r.json()
-        self.assertEqual((body["rider_phone"], body["rider_email"]), ("8055550101", "alex@umail.ucsb.edu"))
+        self.assertEqual((body["rider_phone"], body["rider_email"]), ("8055550101", ""))  # testing phase: no email
+        self.assertRegex(body["rider_name"], r"^[A-Z2-9]{6}$")  # a ride ID, not the name sent
         self.assertEqual(len(body["link_token"]) >= 20, True)
 
         rides = self.client.get(f"/api/rides/?date={self.tomorrow}").json()
@@ -96,11 +97,10 @@ class RideApiTests(TestCase):
         self.assertFalse(rides[0]["rider_confirmed"])
         self.assertEqual(self.client.get("/api/rides/").json(), [])  # today: none
 
-    def test_notes_optional_and_trimmed(self):
-        self.assertEqual(self.create().json()["notes"], "")
-        body = self.create(notes="  Meet at the side door\n").json()
-        self.assertEqual(body["notes"], "Meet at the side door")
-        self.assertEqual(self.create(notes="x" * 1001).status_code, 400)
+    def test_notes_are_not_kept(self):
+        # Testing phase: rides keep no notes.
+        self.assertEqual(self.create(notes="Meet at the side door").json()["notes"], "")
+        self.assertFalse(Ride.objects.exclude(notes="").exists())
 
     def test_rider_page_never_shows_notes(self):
         token = self.create(notes="Uses crutches").json()["link_token"]
@@ -165,7 +165,6 @@ class RideApiTests(TestCase):
             "after 7pm": {"pickup_time": f"{self.tomorrow}T19:01"},
             "past date": {"pickup_time": f"{yesterday}T09:00"},
             "bad phone": {"rider_phone": "555-0101"},
-            "non-UCSB email": {"rider_email": "alex@gmail.com"},
             "blank place": {"dropoff_name": "  "},
             "unknown driver": {"driver": 9999},
         }

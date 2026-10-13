@@ -118,8 +118,9 @@ class ImportApiTests(TestCase):
         self.assertEqual(monday["problems"], [])
         self.assertEqual(monday["starts"], "2026-10-19")  # 9/28 is past: next Monday from today
         self.assertEqual(monday["new_rides"], 4)  # Oct 19, 26, Nov 2, 9
-        self.assertIn("Mobility equipment: Crutches", monday["notes"])
-        self.assertIn("Side door", monday["notes"])
+        # Testing phase: name, email, equipment and notes aren't read at all.
+        for text_ in ("Ana", "ana@ucsb.edu", "Crutches", "Side door"):
+            self.assertNotIn(text_, r.content.decode())
         self.assertEqual(slots[1]["starts"], "2026-10-15")
 
         r = self.run_import(slots)
@@ -128,7 +129,8 @@ class ImportApiTests(TestCase):
         self.assertEqual(rides.count(), 4 + 5)  # Thursdays Oct 15 - Nov 12
         first = rides.filter(pickup_name="Storke Tower").first()
         self.assertEqual(first.pickup_time, local(date(2026, 10, 19), 7, 30))
-        self.assertEqual((first.rider_phone, first.rider_email), ("8055550101", "ana@ucsb.edu"))
+        self.assertEqual((first.rider_phone, first.rider_email, first.notes), ("8055550101", "", ""))
+        self.assertEqual(rides.values("rider_name").distinct().count(), 9)  # each ride its own ride ID
         self.assertEqual(rides.filter(pickup_name="Storke Tower").values("series").distinct().count(), 1)
 
         # The same sheet again: nothing new.
@@ -186,14 +188,16 @@ class ImportApiTests(TestCase):
         self.assertEqual(slots[1]["warnings"], ["Also in row 2; using the earliest start."])  # ...noted on it
         self.assertEqual(slots[0]["warnings"], [])
 
-    def test_non_ucsb_email_is_dropped_with_a_warning(self):
-        text = sheet(rider(**{"Email Address": "ana@gmail.com", "MONDAY Location #1 (Start to End)": "A to B",
-                              "MONDAY #1": ["10/19/2026", "8:00:00 AM"]}))
+    def test_name_and_email_columns_are_not_needed(self):
+        headers = [h for h in FORM_HEADERS if h not in ("First and Last Name:", "Email Address")]
+        text = sheet(rider(**{"MONDAY Location #1 (Start to End)": "A to B",
+                              "MONDAY #1": ["10/19/2026", "8:00:00 AM"]}), headers=headers)
         slot = self.preview(text).json()["slots"][0]
         self.assertEqual(slot["problems"], [])
-        self.assertEqual(slot["warnings"], ["Not a UCSB email, left off: ana@gmail.com"])
-        self.run_import([slot])
-        self.assertEqual(Ride.objects.first().rider_email, "")
+        self.run_import([{**slot, "rider_name": "Ana Lee", "rider_email": "ana@ucsb.edu", "notes": "Crutches"}])
+        ride = Ride.objects.first()
+        self.assertEqual((ride.rider_email, ride.notes), ("", ""))
+        self.assertNotEqual(ride.rider_name, "Ana Lee")
 
     def test_not_the_form(self):
         r = self.preview("Name,Thing\nA,B\n")
@@ -234,14 +238,17 @@ class ExportTests(ImportApiTests.__bases__[0]):
         self.assertEqual(row[col["MONDAY #1"] + 1], "7:30:00 AM")
         self.assertEqual(row[col["MONDAY Location #2  (Start to End)"]], "Library to UCen")
         self.assertEqual(row[col["LOCK-IN (fill out below once and it will repeat)"]], LOCK_IN_ANSWER)
-        # Equipment goes back in its own column, not repeated in every slot's notes.
-        self.assertEqual(row[col["Do you have any mobility equipment? "]], "Crutches")
+        # Testing phase: the name column has the row's ride IDs; no email, equipment or notes.
+        self.assertEqual(sorted(row[col["First and Last Name:"]].split(", ")),
+                         sorted(Ride.objects.filter(pickup_time__date__range=(date(2026, 10, 19), date(2026, 10, 23)))
+                                .values_list("rider_name", flat=True)))
+        self.assertEqual(row[col["Email Address"]], "")
+        self.assertEqual(row[col["Do you have any mobility equipment? "]], "")
         self.assertEqual(row[col["MONDAY #1 NOTES"]], "")
         # Importing the export finds everything already scheduled.
         again = self.preview(r.content.decode()).json()["slots"]
         self.assertEqual(len(again), 3)
         self.assertTrue(all(s["new_rides"] == 0 and s["existing_rides"] > 0 for s in again))
-        self.assertEqual(again[0]["notes"], "Mobility equipment: Crutches")
 
 
 @override_settings(SERVICE_START="07:00", SERVICE_END="19:00")

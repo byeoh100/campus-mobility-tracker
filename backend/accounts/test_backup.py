@@ -87,7 +87,7 @@ class BackupSignInTests(TestCase):
         driver = Driver.objects.get(email=email_for("driver"))
         self.client.post("/api/auth/sign-out/")
         self.sign_in("dispatch", "dispatch123")
-        r = self.client.patch(f"/api/drivers/{driver.id}/", {"name": "Backup driver (Sam)", "email": driver.email},
+        r = self.client.patch(f"/api/drivers/{driver.id}/", {"name": "Sam", "email": driver.email},
                               content_type="application/json")
         self.assertEqual(r.status_code, 200, r.json())
 

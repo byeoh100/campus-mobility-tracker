@@ -83,8 +83,8 @@ def sign_in(request, email, first_name="", last_name=""):
         # (Only on creation, so an existing developer account keeps its password.)
         user.set_unusable_password()
     user.email = email
-    if first_name or last_name:
-        user.first_name, user.last_name = first_name[:150], last_name[:150]
+    # Testing phase: the name Google sends isn't kept (first_name and
+    # last_name are ignored); only the email is.
     user.save()
     bootstrap_admin(email)
     login(request, user)
@@ -195,7 +195,7 @@ def backup_sign_in(request):
     cache.delete(here_key)
     email = backup.email_for(username)
     user, created = User.objects.get_or_create(
-        username=f"backup-{username}", defaults={"email": email, "first_name": "Backup", "last_name": username}
+        username=f"backup-{username}", defaults={"email": email}
     )
     if created:
         user.set_unusable_password()  # never usable at /django-admin/

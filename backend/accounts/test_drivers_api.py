@@ -19,11 +19,12 @@ class DriverApiTests(TestCase):
         data.update(overrides)
         return self.client.post("/api/drivers/", data, content_type="application/json")
 
-    def test_create_normalizes_email_and_phone(self):
+    def test_create_normalizes_email_and_keeps_no_phone(self):
         r = self.create(email=" Dana@UMAIL.ucsb.edu ", phone="+1 805.555.0123")
         self.assertEqual(r.status_code, 201, r.json())
         self.assertEqual(r.json()["email"], "dana@umail.ucsb.edu")
-        self.assertEqual(r.json()["phone"], "8055550123")
+        self.assertEqual(r.json()["phone"], "")  # testing phase: no driver phone numbers
+        self.assertEqual(Driver.objects.get().phone, "")
 
     def test_list_sorted_by_name(self):
         self.create(email="z@ucsb.edu", name="Zoe", color=BLUE)
@@ -39,7 +40,7 @@ class DriverApiTests(TestCase):
             "duplicate email (any case)": {"email": "DANA@umail.ucsb.edu"},
             "non-UCSB email": {"email": "dana@gmail.com"},
             "admin email": {"email": "admin@ucsb.edu"},
-            "bad phone": {"email": "x@ucsb.edu", "phone": "555-0123", "color": RED},
+            "full name": {"email": "x@ucsb.edu", "name": "Dana Ortiz", "color": RED},
             "blank name": {"email": "y@ucsb.edu", "name": "   ", "color": RED},
             "unknown color": {"email": "z@ucsb.edu", "color": "#123456"},
             "color already taken": {"email": "w@ucsb.edu", "color": BLUE},

@@ -17,6 +17,10 @@ function submitLabel(repeat, date) {
 
 // Add or edit a ride. Shown inside a Modal by RidesPage.
 //
+// Testing phase: no rider name, email or notes are entered. The server gives
+// each ride a ride ID (shown where the name was), and the phone number is the
+// only contact detail.
+//
 // Props:
 //   ride         the ride being edited, or null to add one
 //   defaultDate  "YYYY-MM-DD" for new rides (the day being viewed)
@@ -34,14 +38,11 @@ export default function RideForm({ ride, defaultDate, today, drivers, timeZone, 
   const LATEST = config.service_hours?.end ?? "19:00";
   const original = isEdit ? campusParts(ride.pickup_time, timeZone) : null;
 
-  const [riderName, setRiderName] = useState(ride?.rider_name ?? "");
   const [phone, setPhone] = useState(ride?.rider_phone ?? "");
-  const [email, setEmail] = useState(ride?.rider_email ?? "");
   const [date, setDate] = useState(original?.date ?? defaultDate);
   const [time, setTime] = useState(original?.time ?? "");
   const [pickup, setPickup] = useState(ride?.pickup_name ?? "");
   const [dropoff, setDropoff] = useState(ride?.dropoff_name ?? "");
-  const [notes, setNotes] = useState(ride?.notes ?? "");
   const [driverId, setDriverId] = useState(ride?.driver ?? "");
   // New rides: repeat on some weekdays until a date (see RepeatFields).
   const [repeat, setRepeat] = useState(null); // null = off, else { days, until }
@@ -65,7 +66,6 @@ export default function RideForm({ ride, defaultDate, today, drivers, timeZone, 
 
   function checkLocally() {
     const found = {};
-    if (!riderName.trim()) found.rider_name = "Enter the rider's name.";
     if (!isCompletePhone(phone)) found.rider_phone = "Enter all 10 digits.";
     if (!date || !time) found.pickup_time = "Enter a date and time.";
     // Hours are only checked when the time changes (like the server), so a ride
@@ -90,12 +90,9 @@ export default function RideForm({ ride, defaultDate, today, drivers, timeZone, 
     if (Object.keys(found).length) return;
 
     const data = {
-      rider_name: riderName.trim(),
       rider_phone: phone,
-      rider_email: email.trim(),
       pickup_name: pickup.trim(),
       dropoff_name: dropoff.trim(),
-      notes: notes.trim(),
       driver: driverId === "" ? null : Number(driverId),
     };
     // Sent without a time zone: the server reads it as campus time.
@@ -125,31 +122,11 @@ export default function RideForm({ ride, defaultDate, today, drivers, timeZone, 
       <RequiredNote />
       <fieldset className="form-section">
         <legend>Rider</legend>
-        <label className="field">
-          <span>Name <Req /></span>
-          <input value={riderName} onChange={(e) => edit("rider_name", setRiderName)(e.target.value)} autoComplete="off" autoFocus aria-required="true" />
-          {error("rider_name")}
-        </label>
         <div className="form-row">
           <label className="field">
             <span>Phone <Req /></span>
-            <PhoneInput value={phone} onChange={edit("rider_phone", setPhone)} autoComplete="off" aria-required="true" />
+            <PhoneInput value={phone} onChange={edit("rider_phone", setPhone)} autoComplete="off" autoFocus aria-required="true" />
             {error("rider_phone")}
-          </label>
-          <label className="field">
-            <span>
-              UCSB email <span className="optional">optional</span>
-            </span>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => edit("rider_email", setEmail)(e.target.value)}
-              placeholder="name@umail.ucsb.edu"
-              autoComplete="off"
-              autoCapitalize="none"
-              spellCheck={false}
-            />
-            {error("rider_email")}
           </label>
         </div>
       </fieldset>
@@ -212,19 +189,6 @@ export default function RideForm({ ride, defaultDate, today, drivers, timeZone, 
             {error("dropoff_name")}
           </label>
         </div>
-        <label className="field">
-          <span>
-            Notes <span className="optional">optional</span>
-          </span>
-          <textarea
-            value={notes}
-            onChange={(e) => edit("notes", setNotes)(e.target.value)}
-            rows={2}
-            maxLength={1000}
-            placeholder="From the rider, e.g. meet at the side door"
-          />
-          {error("notes")}
-        </label>
         <label className="field">
           Driver
           <span className="driver-select">

@@ -5,7 +5,7 @@ import { formatPhone } from "../lib/phone.js";
 // Public privacy policy (/privacy), linked from Google's consent screen.
 // Written to match what the app actually does; if the app changes, update
 // this page too. Have the program (and UCSB, if required) review the wording.
-const LAST_UPDATED = "October 10, 2026";
+const LAST_UPDATED = "October 12, 2026";
 
 export default function Privacy() {
   const { config } = useAuth();
@@ -33,6 +33,27 @@ export default function Privacy() {
           </a>
           .
         </p>
+
+        <section className="notice testing-phase" aria-labelledby="testing-phase">
+          <h2 id="testing-phase">Testing phase</h2>
+          <p>
+            While the app is being tested, it's hosted on a service that isn't yet fully approved for student
+            information, so it keeps less than the rest of this page describes:
+          </p>
+          <ul>
+            <li>
+              <strong>Riders:</strong> no names, emails or notes are stored. Each ride is identified by a random
+              6-character ride ID instead, and the rider's phone number is the only contact detail kept.
+            </li>
+            <li>
+              <strong>Drivers:</strong> only a first name is stored, and no phone number.
+            </li>
+            <li>
+              <strong>Sign-in:</strong> only your email address is kept; the name Google shares is not.
+            </li>
+          </ul>
+          <p>Where this page mentions names, emails or notes, they don't apply during the testing phase.</p>
+        </section>
 
         <h2>What we collect</h2>
         <ul>

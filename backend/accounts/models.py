@@ -81,6 +81,9 @@ class Driver(models.Model):
 
     def save(self, *args, **kwargs):
         self.email = normalize_email(self.email)
+        # Testing phase: drivers keep a first name only and no phone number.
+        self.name = (self.name.split() or [""])[0]
+        self.phone = ""
         super().save(*args, **kwargs)
 
     def __str__(self):

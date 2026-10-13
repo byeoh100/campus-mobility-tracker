@@ -1,8 +1,6 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 
-from common.phone import normalize_phone
-
 from common import service_hours
 
 from .models import DRIVER_COLORS, AdminEmail, Driver, DriverShift
@@ -20,7 +18,8 @@ def as_drf_error(func, value):
 class DriverSerializer(serializers.ModelSerializer):
     # Uniqueness is checked by hand below, after normalizing case.
     email = serializers.EmailField()
-    phone = serializers.CharField(required=False, allow_blank=True)
+    # Testing phase: no driver phone numbers (always blank; see Driver.save).
+    phone = serializers.CharField(read_only=True)
     color = serializers.ChoiceField(choices=DRIVER_COLORS)
 
     # For dispatch: what the driver is doing right now (read-only). A list:
@@ -78,7 +77,9 @@ class DriverSerializer(serializers.ModelSerializer):
     def validate_name(self, value):
         value = value.strip()
         if not value:
-            raise serializers.ValidationError("Enter the driver's name.")
+            raise serializers.ValidationError("Enter the driver's first name.")
+        if len(value.split()) > 1:
+            raise serializers.ValidationError("First name only.")
         return value
 
     def validate_color(self, value):
@@ -88,10 +89,6 @@ class DriverSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"{taken_by.name} already has this color.")
         return value
 
-    def validate_phone(self, value):
-        if not value.strip():
-            return ""
-        return as_drf_error(normalize_phone, value)
 
 
 class DispatcherSerializer(serializers.ModelSerializer):

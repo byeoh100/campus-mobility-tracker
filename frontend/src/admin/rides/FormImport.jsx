@@ -130,7 +130,8 @@ export default function FormImport({ today, onDone, onClose }) {
       <form className="stack" onSubmit={loadPreview} noValidate>
         <p className="hint">
           In the form's Google Sheet: File → Download → Comma-separated values (.csv). Importing the same sheet again
-          only adds what's new.
+          only adds what's new. Testing phase: names, emails, equipment and notes aren't imported; each ride gets
+          a ride ID instead.
         </p>
         <label className="field">
           <span>Response sheet</span>
@@ -161,7 +162,7 @@ export default function FormImport({ today, onDone, onClose }) {
   for (const s of slots) {
     const last = riders[riders.length - 1];
     if (last && last.row === s.row) last.slots.push(s);
-    else riders.push({ row: s.row, name: s.rider_name, phone: s.rider_phone, slots: [s] });
+    else riders.push({ row: s.row, phone: s.rider_phone, slots: [s] });
   }
 
   return (
@@ -213,7 +214,8 @@ export default function FormImport({ today, onDone, onClose }) {
               <tbody key={r.row}>
                 <tr className="import-rider">
                   <td colSpan={8}>
-                    <strong>{r.name || "(no name)"}</strong> <span className="muted">· {formatPhone(r.phone.replace(/\D/g, "").slice(-10)) || r.phone} · row {r.row}</span>
+                    <strong>{formatPhone(r.phone.replace(/\D/g, "").slice(-10)) || r.phone || "(no phone number)"}</strong>{" "}
+                    <span className="muted">· row {r.row}</span>
                   </td>
                 </tr>
                 {r.slots.map((s) => {
@@ -285,7 +287,6 @@ export default function FormImport({ today, onDone, onClose }) {
                         {s.warnings.map((w) => (
                           <span key={w} className="import-warning">{w}</span>
                         ))}
-                        {s.notes && <span className="import-note">{s.notes}</span>}
                       </td>
                     </tr>
                   );

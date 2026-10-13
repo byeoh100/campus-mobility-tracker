@@ -19,7 +19,7 @@ ACCOUNTS = {
     "dispatch": "FALLBACK_DISPATCH_PASSWORD",
     "driver": "FALLBACK_DRIVER_PASSWORD",
 }
-BACKUP_DRIVER_NAME = "Backup driver"
+BACKUP_DRIVER_NAME = "Backup"
 
 
 def password_for(username):

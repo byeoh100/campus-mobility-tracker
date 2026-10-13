@@ -1,3 +1,4 @@
+import re
 import secrets
 
 from django.db import models
@@ -6,6 +7,22 @@ from django.db import models
 def new_link_token():
     # ~22 URL-safe characters: unguessable, so the rider link needs no login.
     return secrets.token_urlsafe(16)
+
+
+# Testing phase: the app is hosted on a service that isn't yet fully approved
+# for student data, so rides keep no rider name, email or notes. rider_name
+# holds a ride ID instead: 6 characters from capital letters and digits,
+# leaving out the look-alikes 0/O and 1/I so it's easy to read out.
+RIDE_ID_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+RIDE_ID = re.compile(f"[{RIDE_ID_ALPHABET}]{{6}}")
+
+
+def new_ride_id():
+    """A ride ID no other ride has (about a billion possibilities)."""
+    while True:
+        ride_id = "".join(secrets.choice(RIDE_ID_ALPHABET) for _ in range(6))
+        if not Ride.objects.filter(rider_name=ride_id).exists():
+            return ride_id
 
 
 class Ride(models.Model):
@@ -68,6 +85,16 @@ class Ride(models.Model):
             models.Index(fields=["driver", "pickup_time"]),
             models.Index(fields=["rider_phone"]),
         ]
+
+    def save(self, *args, **kwargs):
+        # Testing phase (see new_ride_id): every save, whatever the source
+        # (the API, the form import, the Django admin), keeps these trimmed.
+        # A ride's ID never changes once set.
+        stored = Ride.objects.filter(pk=self.pk).values_list("rider_name", flat=True).first() if self.pk else None
+        self.rider_name = stored if stored and RIDE_ID.fullmatch(stored) else new_ride_id()
+        self.rider_email = ""
+        self.notes = ""
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.rider_name} · {self.pickup_name} → {self.dropoff_name}"

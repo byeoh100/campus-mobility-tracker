@@ -589,6 +589,10 @@ a.call-circle { text-decoration: none; }
 .doc h2 { font-size: 1.2rem; margin: 2rem 0 0.5rem; }
 .doc ul { padding-left: 1.25rem; }
 .doc li { margin-bottom: 0.6rem; }
+.doc .testing-phase { margin: 1.5rem 0 0; padding: 0.9rem 1.1rem; border-radius: 0 var(--radius) var(--radius) 0; }
+.doc .testing-phase h2 { margin-top: 0; }
+.doc .testing-phase ul { margin: 0.5rem 0; }
+.doc .testing-phase p:last-child { margin-bottom: 0; }
 .doc-back { margin: 0; }
 
 /* ---------- Rider-facing polish ---------- */

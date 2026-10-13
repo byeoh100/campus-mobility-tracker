@@ -113,7 +113,7 @@ class LocationSharingTests(TestCase):
         self.client.force_login(boss)
         with at(D, 9, 50, 30):
             driver = self.client.get("/api/drivers/").json()[0]
-        self.assertEqual(driver["current_rides"][0]["rider_name"], "Riley")
+        self.assertEqual(driver["current_rides"][0]["rider_name"], self.ride.rider_name)
         loc = driver["location"]
         self.assertTrue(loc["on_map"] and loc["live"])
         self.assertEqual(loc["age_seconds"], 30)
@@ -121,7 +121,7 @@ class LocationSharingTests(TestCase):
         with at(D, 9, 52):
             self.assertFalse(self.client.get("/api/drivers/").json()[0]["location"]["live"])
         with at(D, 10, 30):  # late pickup: still on the way, still shown
-            self.assertEqual(self.client.get("/api/drivers/").json()[0]["current_rides"][0]["rider_name"], "Riley")
+            self.assertEqual(self.client.get("/api/drivers/").json()[0]["current_rides"][0]["rider_name"], self.ride.rider_name)
         with at(D, 11, 0):  # 60 min cutoff: completed, no current ride, no location shown
             driver = self.client.get("/api/drivers/").json()[0]
         self.assertEqual((driver["current_rides"], driver["location"]), ([], None))

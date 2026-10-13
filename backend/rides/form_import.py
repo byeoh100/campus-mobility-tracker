@@ -14,6 +14,10 @@ The form ("UCSB Campus Ride Scheduling") gives one row per response:
 Columns are found by name, not position: spacing and "# 1" vs "#1" don't
 matter, and the #5 columns (added later, in another order) work the same.
 
+Testing phase: the name, email, mobility equipment and notes columns aren't
+read, so they never reach the app; each ride gets a ride ID instead (see
+Ride.save).
+
 A response with the LOCK-IN checkbox ticked ("Yes. Follow my exact class
 schedule") repeats: every filled slot becomes a weekly ride on that
 weekday, from the slot's date (or today, if that's later) until the "repeat
@@ -33,7 +37,6 @@ from datetime import date, datetime, time, timedelta
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from accounts.validators import normalize_email, validate_rider_email
 from common import service_hours
 from common.phone import normalize_phone
 
@@ -41,7 +44,6 @@ from .recurrence import MAX_SPAN_DAYS, create_series, repeat_dates
 
 DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]
 LOCK_IN_ANSWER = "Yes. Follow my exact class schedule"
-NO_EQUIPMENT = {"", "no", "none", "n/a", "na", "nope", "no.", "-"}
 
 # Longest answer read from any one cell. Real answers are far shorter; the
 # cap keeps a pasted wall of text from slowing the parsing down.
@@ -202,7 +204,7 @@ def read_layout(header):
             layout.setdefault("lock_in", i)
         elif h.startswith("FLEX"):
             layout.setdefault("flex", i)
-    missing = [label for key, label in (("name", "First and Last Name"), ("phone", "Phone Number")) if key not in layout]
+    missing = ["Phone Number"] if "phone" not in layout else []
     if missing or not layout["slots"]:
         raise FormError(
             "This doesn't look like the ride form's responses"
@@ -324,25 +326,11 @@ def plan_slot(slot, until, today=None):
     today = today or timezone.localdate()
     problems, warnings = [], []
 
-    name = _text(slot, "rider_name")
-    if not name:
-        problems.append("No name.")
-    elif len(name) > 120:
-        problems.append("The name is too long (120 characters at most).")
     try:
         phone = normalize_phone(_text(slot, "rider_phone"))
     except ValidationError:
         phone = ""
         problems.append("Phone number isn't 10 digits.")
-    email = normalize_email(_text(slot, "rider_email"))
-    if email:
-        try:
-            if len(email) > 254:
-                raise ValidationError("too long")
-            validate_rider_email(email)
-        except ValidationError:
-            warnings.append(f"Not a UCSB email, left off: {email}")
-            email = ""
 
     pickup, dropoff = _text(slot, "pickup"), _text(slot, "dropoff")
     if not pickup or not dropoff:
@@ -395,12 +383,10 @@ def plan_slot(slot, until, today=None):
             if given.weekday() != weekday:
                 warnings.append(f"{_date_text(given)} is a {given:%A}, not a {DAYS[weekday].title()}.")
 
-    notes = _text(slot, "notes")[:1000]
     fields = None
     if not problems:
         fields = {
-            "rider_name": name, "rider_phone": phone, "rider_email": email,
-            "pickup_name": pickup, "dropoff_name": dropoff, "notes": notes,
+            "rider_phone": phone, "pickup_name": pickup, "dropoff_name": dropoff,
             "pickup_time": timezone.make_aware(datetime.combine(dates[0], at)),
         }
     return fields, dates, problems, warnings, (phone, at) if phone and at else None
@@ -435,7 +421,6 @@ def slots_from_csv(text):
     for n, row in enumerate(rows, start=2):  # sheet row numbers (row 1 = headers)
         if not any(c.strip() for c in row):
             continue
-        mobility = _cell(row, layout.get("mobility"))
         # LOCK-IN is a checkbox; ticked, the cell holds its one option's text.
         # (Checkbox cells list every ticked option, comma-separated.)
         lock_in = _squash(LOCK_IN_ANSWER) in _squash(_cell(row, layout.get("lock_in")))
@@ -457,15 +442,10 @@ def slots_from_csv(text):
                 else:
                     at = v  # shown as unreadable by plan_slot
             route = split_route(location)
-            notes = [MOBILITY_PREFIX + mobility] if mobility.lower() not in NO_EQUIPMENT else []
-            if slot_notes := _cell(row, cols.get("notes")):
-                notes.append(slot_notes)
             slots.append({
                 "key": f"{n}-{weekday}-{number}",
                 "row": n,
-                "rider_name": _cell(row, layout["name"]),
                 "rider_phone": _cell(row, layout["phone"]),
-                "rider_email": _cell(row, layout.get("email")),
                 "weekday": weekday,
                 "slot": number,
                 "location": location,
@@ -475,7 +455,6 @@ def slots_from_csv(text):
                 "first_date": first_date.isoformat() if first_date else None,
                 "bad_date": bad_date,
                 "lock_in": lock_in,
-                "notes": "\n".join(notes),
             })
     return _merge_repeats(slots)
 
@@ -629,10 +608,10 @@ def export_week(monday):
     writer = csv.writer(out)
     writer.writerow(FORM_HEADERS)
     left_out = 0
-    order = sorted(groups.items(), key=lambda item: (item[1][0].rider_name.lower(), item[0][0], not item[0][1]))
+    order = sorted(groups.items(), key=lambda item: (item[0][0], not item[0][1]))
     for (phone, repeating), mine in order:
         row = [""] * len(FORM_HEADERS)
-        row[layout["name"]] = mine[0].rider_name
+        row[layout["name"]] = ", ".join(r.rider_name for r in mine)  # ride IDs (testing phase)
         if "timestamp" in layout:
             row[layout["timestamp"]] = f"{_date_text(now.date())} {now:%H:%M:%S}"
         if "email" in layout:

@@ -3,7 +3,6 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from accounts.models import Driver
-from accounts.validators import normalize_email, validate_rider_email
 from common import service_hours
 from common.phone import normalize_phone
 
@@ -79,7 +78,9 @@ class RideSerializer(serializers.ModelSerializer):
             "series",
             "repeat",
         ]
-        read_only_fields = ["link_token", "started_at", "completed_at", "series"]
+        # Testing phase: the server sets the ride ID (rider_name) and keeps
+        # email and notes blank (see Ride.save), so they can't be written.
+        read_only_fields = ["rider_name", "rider_email", "notes", "link_token", "started_at", "completed_at", "series"]
 
     # Private to dispatch and the ride's own driver: progress, notes (they may
     # say what help the rider needs), the rider's contact details, and the
@@ -115,23 +116,8 @@ class RideSerializer(serializers.ModelSerializer):
 
     # --- validation ---
 
-    def validate_rider_name(self, value):
-        value = value.strip()
-        if not value:
-            raise serializers.ValidationError("Enter the rider's name.")
-        return value
-
     def validate_rider_phone(self, value):
         return django_to_drf(normalize_phone, value)
-
-    def validate_rider_email(self, value):
-        email = normalize_email(value)
-        if email:  # optional, but if given it must be a UCSB address
-            django_to_drf(validate_rider_email, email)
-        return email
-
-    def validate_notes(self, value):
-        return value.strip()  # optional
 
     def validate_pickup_name(self, value):
         return self._place_name(value, "pickup")

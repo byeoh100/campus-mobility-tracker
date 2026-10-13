@@ -9,7 +9,7 @@ class RideAdmin(admin.ModelAdmin):
     list_filter = ["driver"]
     date_hierarchy = "pickup_time"
     search_fields = ["rider_name", "rider_phone", "rider_email", "pickup_name", "dropoff_name"]
-    readonly_fields = ["link_token", "created_at", "updated_at"]
+    readonly_fields = ["rider_name", "rider_email", "notes", "link_token", "created_at", "updated_at"]
 
 
 # DriverLocation is deliberately not registered: exact GPS is never displayed

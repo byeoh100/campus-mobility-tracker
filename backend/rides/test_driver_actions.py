@@ -160,10 +160,11 @@ class StatusPrivacyTests(TestCase):
         self.assertEqual(rides[self.sams.id]["driver_name"], "Sam")
 
     def test_notes_only_for_own_rides(self):
-        # Notes can be about health, so other drivers don't get them.
+        # Notes can be about health, so other drivers don't get them. (Testing
+        # phase: notes are always blank anyway.)
         self.client.force_login(self.dana_user)
         rides = self.listing()
-        self.assertEqual(rides[self.mine.id]["notes"], "Uses crutches")
+        self.assertEqual(rides[self.mine.id]["notes"], "")
         self.assertIsNone(rides[self.sams.id]["notes"])
         self.assertIsNone(rides[self.unassigned.id]["notes"])
 
@@ -172,7 +173,7 @@ class StatusPrivacyTests(TestCase):
         self.client.force_login(User.objects.create(username="boss@ucsb.edu", email="boss@ucsb.edu"))
         rides = self.listing()
         self.assertTrue(all(r["status"] is not None for r in rides.values()))
-        self.assertTrue(all(r["notes"] == "Uses crutches" for r in rides.values()))
+        self.assertTrue(all(r["rider_phone"] is not None for r in rides.values()))
 
     def test_single_ride_endpoint_also_hides(self):
         self.client.force_login(self.dana_user)

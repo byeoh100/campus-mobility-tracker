@@ -42,7 +42,8 @@ class OtherDriversRidesTests(Base):
             [row] = self.client.get(f"/api/rides/?date={D}").json()
         for field in ("link_token", "rider_phone", "rider_email", "notes", "status"):
             self.assertIsNone(row[field], field)
-        self.assertEqual((row["rider_name"], row["pickup_name"]), ("R", "A"))  # still enough to arrange swaps
+        self.assertEqual(row["pickup_name"], "A")  # still enough to arrange swaps
+        self.assertRegex(row["rider_name"], r"^[A-Z2-9]{6}$")  # the ride ID (testing phase)
 
     def test_own_driver_and_dispatch_still_do(self):
         self.ride()

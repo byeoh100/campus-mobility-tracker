@@ -55,7 +55,8 @@ class RepeatApiTests(TestCase):
         self.assertTrue(all(campus(x).time() == time(9, 30) for x in rides))
         self.assertEqual(len({x.series for x in rides}), 1)
         self.assertEqual(len({x.link_token for x in rides}), 6)  # each has its own link
-        self.assertTrue(all(x.driver == self.dana and x.notes == "Side door" for x in rides))
+        self.assertTrue(all(x.driver == self.dana and x.notes == "" for x in rides))  # notes: testing phase
+        self.assertEqual(len({x.rider_name for x in rides}), 6)  # each its own ride ID
 
     def test_same_campus_time_across_daylight_saving(self, _now):
         # DST ends Nov 1, 2026: the ride stays at 9:30 AM local before and after.
@@ -108,7 +109,7 @@ class RepeatApiTests(TestCase):
         rides[4].save()
         r = self.client.patch(
             f"/api/rides/{third.id}/?scope=following",
-            {"driver": self.sam.id, "pickup_time": f"{campus(third).date()}T10:15", "notes": "Front door"},
+            {"driver": self.sam.id, "pickup_time": f"{campus(third).date()}T10:15", "dropoff_name": "Bren Hall"},
             content_type="application/json",
         )
         self.assertEqual(r.status_code, 200, r.json())
@@ -116,7 +117,10 @@ class RepeatApiTests(TestCase):
         self.assertEqual([x.driver_id == self.sam.id for x in after], [False, False, True, True, False, True])
         self.assertEqual([campus(x).time() for x in after][2:4], [time(10, 15)] * 2)
         self.assertEqual(campus(after[0]).time(), time(9, 30))  # earlier rides untouched
-        self.assertEqual([x.notes for x in after], ["Side door"] * 2 + ["Front door"] * 2 + ["Side door", "Front door"])
+        self.assertEqual(
+            [x.dropoff_name for x in after], ["Phelps Hall"] * 2 + ["Bren Hall"] * 2 + ["Phelps Hall", "Bren Hall"]
+        )
+        self.assertEqual([x.rider_name for x in after], [x.rider_name for x in rides])  # ride IDs never change
         # Each kept its own date.
         self.assertEqual([campus(x).date() for x in after], [campus(x).date() for x in rides])
 
@@ -144,8 +148,8 @@ class RepeatApiTests(TestCase):
                             pickup_name="A", dropoff_name="B")
         r = self.client.delete(f"/api/rides/{third.id}/?scope=following")
         self.assertEqual(r.status_code, 204)
-        names = [x.rider_name for x in Ride.objects.order_by("pickup_time")]
-        self.assertEqual(names, ["Alex Kim", "Alex Kim", "Other"])  # other rides untouched
+        phones = [x.rider_phone for x in Ride.objects.order_by("pickup_time")]
+        self.assertEqual(phones, ["8055550101", "8055550101", "8055550000"])  # other rides untouched
 
     def test_scope_ignored_for_single_rides(self, _now):
         ride_id = self.add(repeat=None).json()["id"]

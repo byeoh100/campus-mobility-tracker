@@ -58,19 +58,19 @@ class SignInTests(TestCase):
 
     def test_shared_phone_handoff(self):
         # Pilot day 1: driver A signs out, driver B signs in on the same phone.
-        Driver.objects.create(email="a@ucsb.edu", name="Driver A", color="#1a73e8")
-        Driver.objects.create(email="b@ucsb.edu", name="Driver B", color="#d93025")
+        Driver.objects.create(email="a@ucsb.edu", name="Ari", color="#1a73e8")
+        Driver.objects.create(email="b@ucsb.edu", name="Bea", color="#d93025")
         self.google_sign_in("a@ucsb.edu")
         self.client.post("/api/auth/sign-out/")
-        self.assertEqual(self.google_sign_in("b@ucsb.edu").json()["user"]["driver"]["name"], "Driver B")
+        self.assertEqual(self.google_sign_in("b@ucsb.edu").json()["user"]["driver"]["name"], "Bea")
         self.assertEqual(self.client.get("/api/auth/session/").json()["user"]["email"], "b@ucsb.edu")
 
     def test_switching_without_sign_out_replaces_account(self):
-        Driver.objects.create(email="a@ucsb.edu", name="Driver A", color="#1a73e8")
-        Driver.objects.create(email="b@ucsb.edu", name="Driver B", color="#d93025")
+        Driver.objects.create(email="a@ucsb.edu", name="Ari", color="#1a73e8")
+        Driver.objects.create(email="b@ucsb.edu", name="Bea", color="#d93025")
         self.google_sign_in("a@ucsb.edu")
         self.google_sign_in("b@ucsb.edu")
-        self.assertEqual(self.client.get("/api/auth/session/").json()["user"]["driver"]["name"], "Driver B")
+        self.assertEqual(self.client.get("/api/auth/session/").json()["user"]["driver"]["name"], "Bea")
 
     def test_api_responses_are_never_cached(self):
         # Shared phones: the browser must always ask who's signed in.
