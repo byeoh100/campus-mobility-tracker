@@ -1,5 +1,5 @@
 """
-Settings for UCSB Mobility Tracker.
+Settings for Campus Mobility Tracker.
 
 Everything that differs between your laptop and production comes from
 environment variables, so the same code runs in both places. Locally, put

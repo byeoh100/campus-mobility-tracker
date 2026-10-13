@@ -1,6 +1,9 @@
-# UCSB Mobility Tracker
+# Campus Mobility Tracker
 
 Ride dispatch for the campus golf cart program. Django + React, deployed as one app.
+
+> **Student project, not an official UCSB application.** It's built and maintained by a student for the
+> UCSB Mobility Program, and may move to the program's ownership once approved.
 
 ## What it does
 

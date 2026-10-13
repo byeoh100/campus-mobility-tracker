@@ -133,7 +133,7 @@ export default function DriverHome() {
             {user.driver.name}
           </>
         ) : (
-          "UCSB Mobility Tracker"
+          "Campus Mobility Tracker"
         )
       }
       actions={<button className="button-quiet" onClick={signOut}>Sign out</button>}

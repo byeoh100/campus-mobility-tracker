@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router";
+import { Link, NavLink, Outlet } from "react-router";
 import { useAuth } from "../auth/AuthProvider.jsx";
 
 // Desktop shell for the admin profile: top bar with section tabs.
@@ -17,7 +17,7 @@ export default function AdminLayout() {
   return (
     <div className="admin">
       <header className="admin-bar">
-        <span className="brand">UCSB Mobility Tracker</span>
+        <span className="brand">Campus Mobility Tracker</span>
         <nav aria-label="Admin sections">
           {SECTIONS.map((s) => (
             <NavLink key={s.to} to={s.to} className="tab">
@@ -33,6 +33,9 @@ export default function AdminLayout() {
       <main className="admin-main">
         <Outlet />
       </main>
+      <footer className="admin-footer">
+        Student project, not an official UCSB application. · <Link to="/privacy">Privacy</Link>
+      </footer>
     </div>
   );
 }

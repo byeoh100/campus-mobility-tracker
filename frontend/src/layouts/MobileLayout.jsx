@@ -23,6 +23,7 @@ export default function MobileLayout({ title, actions, children }) {
         )}
         <main className="mobile-main">{children}</main>
         <footer className="mobile-footer">
+          <p className="disclaimer">Student project, not an official UCSB application.</p>
           <Link to="/privacy">Privacy</Link>
         </footer>
       </div>

@@ -39,7 +39,7 @@ export default function SignIn() {
   if (user) return <Navigate to={target} replace />;
 
   return (
-    <MobileLayout title="UCSB Mobility Tracker">
+    <MobileLayout title="Campus Mobility Tracker">
       <div className="stack">
         <h1>Sign in</h1>
         <p className="muted">Drivers and dispatch sign in with their UCSB Google account.</p>

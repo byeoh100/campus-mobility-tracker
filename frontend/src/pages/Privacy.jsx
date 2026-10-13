@@ -17,14 +17,15 @@ export default function Privacy() {
     <div className="doc-page">
       <article className="doc">
         <p className="doc-back">
-          <Link to="/">← UCSB Mobility Tracker</Link>
+          <Link to="/">← Campus Mobility Tracker</Link>
         </p>
         <h1>Privacy Policy</h1>
         <p className="muted">Last updated {LAST_UPDATED}</p>
 
         <p>
-          UCSB Mobility Tracker coordinates golf cart rides for UC Santa Barbara students who need transportation to class.
-          This page explains what information the app uses, who can see it, and how long it's kept.
+          Campus Mobility Tracker coordinates golf cart rides for UC Santa Barbara students who need transportation to class.
+          This page explains what information the app uses, who can see it, and how long it's kept. It's a student
+          project, not an official UCSB application.
         </p>
         <p>
           It covers this app only. The UCSB Mobility Program's own privacy policy also applies:{" "}

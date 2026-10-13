@@ -1,4 +1,4 @@
-/* UCSB Mobility Tracker styles, using UC Santa Barbara's digital palette and its
+/* Campus Mobility Tracker styles, using UC Santa Barbara's digital palette and its
    approved web font (brand.ucsb.edu). Every color in the app comes from the
    variables below; don't add hex values elsewhere (driver colors excepted). */
 
@@ -581,6 +581,12 @@ a.call-circle { text-decoration: none; }
   font-size: 0.85rem; text-align: center;
 }
 .mobile-footer a { color: var(--muted); }
+.mobile-footer .disclaimer { margin: 0 0 0.35rem; color: var(--muted); }
+.admin-footer {
+  padding: 0.9rem 1.5rem; border-top: 1px solid var(--border);
+  font-size: 0.85rem; text-align: center; color: var(--muted);
+}
+.admin-footer a { color: var(--muted); }
 
 /* Text pages (privacy policy) */
 .doc-page { min-height: 100vh; background: var(--surface); }
