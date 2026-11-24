@@ -7,6 +7,7 @@ services:
     plan: free          # free instances sleep when idle; use a paid plan for real shifts
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health/
+    autoDeployTrigger: checksPass   # deploy only after GitHub Actions CI passes
     envVars:
       - key: DATABASE_URL
         fromDatabase:
